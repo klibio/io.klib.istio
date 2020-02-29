@@ -1,0 +1,59 @@
+# Copyright 2017 Istio Authors
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+##################################################################################################
+# httpbin service
+##################################################################################################
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: aries
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aries
+  labels:
+    app: aries
+spec:
+  ports:
+  - name: aries
+    port: 8000
+    targetPort: 8080
+  selector:
+    app: aries
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aries
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aries
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: aries
+        version: v1
+    spec:
+      serviceAccountName: aries
+      containers:
+      - image: docker.io/klibio/io.klib.aries.example:develop-latest
+        imagePullPolicy: IfNotPresent
+        name: aries
+        ports:
+        - containerPort: 8080
